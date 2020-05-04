@@ -1,0 +1,34 @@
+Description red
+Prediction number 1: Cherry 2
+Prediction number 2: Apple Pink Lady
+Prediction number 3: Potato Red
+
+
+Description yellow long smooth
+Prediction number 1: Physalis
+Prediction number 2: Potato White
+Prediction number 3: Peach Flat
+
+
+Description shiny purple round
+Prediction number 1: Rambutan
+Prediction number 2: Beetroot
+Prediction number 3: Eggplant
+
+
+Description small spiky spherical
+Prediction number 1: Cherry 2
+Prediction number 2: Tangelo
+Prediction number 3: Mandarine
+
+
+Description coarse spotted white
+Prediction number 1: Potato Red
+Prediction number 2: Onion Red
+Prediction number 3: Potato White
+
+
+Description oblong light
+Prediction number 1: Kiwi
+Prediction number 2: Papaya
+Prediction number 3: Pineapple Mini
