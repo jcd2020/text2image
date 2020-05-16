@@ -1,10 +1,7 @@
 import pickle
 import os
-# from InferSent import infersent_embedding as infersent
 import nltk.tokenize as tokenize
 import numpy as np
-from gensim import corpora
-from gensim.models import LsiModel
 
 
 def get_tokens_and_bigrams(text):
@@ -30,14 +27,14 @@ def get_tokens_and_bigrams(text):
 
     return unique_toks, bigrams
 
-with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Embeddings/BoW/longer_words.txt', 'r') as f:
+with open('Data/Fruits/fruit_data/Embeddings/BoW/longer_words.txt', 'r') as f:
     lsa_words = set(map(lambda x: x.strip(), f.readlines()))
 
-with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Embeddings/BoW/longer_words.txt', 'r') as f:
+with open('Data/Fruits/fruit_data/Embeddings/BoW/longer_words.txt', 'r') as f:
     word_list = set(map(lambda x: x.strip(), f.readlines()))
 
 def bag_of_words():
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/AllTextDescriptions/description.txt', 'r') as f:
+    with open('Data/Fruits/fruit_data/AllTextDescriptions/description.txt', 'r') as f:
         lines = f.readlines()
 
         all_toks, all_bigrams = get_tokens_and_bigrams('\n'.join(lines))
@@ -58,7 +55,7 @@ def bag_of_words():
             #     else:
             #         gram_to_idf[tok] = 1
         gram_idf_dup = {}
-        with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Embeddings/BoW/all_words.txt', 'w') as f:
+        with open('Data/Fruits/fruit_data/Embeddings/BoW/all_words.txt', 'w') as f:
             for gram in gram_to_idf:
                 if gram_to_idf[gram] < 4:
                     if len(gram.split(' ')) == 2:
@@ -104,7 +101,7 @@ def embed_bow(text):
     return vector
 
 def make_bow_embedings():
-    text_path = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/TextDescriptions'
+    text_path = 'Data/Fruits/fruit_data/TextDescriptions'
     classes = {}
     for folder in os.listdir(text_path):
         class_name = folder
@@ -112,27 +109,10 @@ def make_bow_embedings():
             vector = embed_bow('\n'.join(desc.readlines()))
             classes[class_name] = vector
 
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Embeddings/BoW/embeddings_short.pkl', 'wb+') as f:
+    path = 'Data/Fruits/fruit_data/Embeddings/BoW/embeddings_short.pkl'
+    with open(path, 'wb+') as f:
         pickle.dump(classes, f)
-
-
-def make_multisentence_bow():
-    '''
-    Embed each sentence in the definition individually.
-    '''
-    text_path = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/TextDescriptions'
-    classes = {}
-    for folder in os.listdir(text_path):
-        class_name = folder
-        with open(text_path + '/' + folder + '/description.txt', 'r') as desc:
-            description = '\n'.join(desc.readlines())
-            tokenized = tokenize.sent_tokenize(description)
-            vectors = [embed_bow(sent) for sent in tokenized]
-            classes[class_name] = vectors
-
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Embeddings/BoW/individual_sentence_embeddings.pkl', 'wb+') as f:
-        pickle.dump(classes, f)
-
+    print('created embeddings at {}'.format(path))
 
 if __name__ == "__main__":
-    make_multisentence_bow()
+    make_bow_embedings()

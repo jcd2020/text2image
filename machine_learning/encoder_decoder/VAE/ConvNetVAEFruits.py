@@ -29,6 +29,8 @@ device = torch.device("cuda" if cuda else "cpu")
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 
+
+
 train_root = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Training'
 val_root = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Test'
 
@@ -263,4 +265,5 @@ def test_classifier():
 
 
 if __name__ == "__main__":
+    train_loop()
     test_classifier()
