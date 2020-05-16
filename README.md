@@ -1,6 +1,6 @@
 Please read the pdf and view the slides to learn more about the project. Run the commands below (from the current directory) in the terminal to reproduce the results.
 
-The best results are in Resuls/WithRandomness
+The best results are in Results/WithRandomness
 
 Execute the following in terminal
 1. `python machine_learning/embeddings/embed_fruits.py` to make the embeddings.
