@@ -2,10 +2,10 @@
 # coding: utf-8
 
 # ## 0. Imports
-
 import matplotlib.pyplot as plt
 import os
-from machine_learning.discriminator import classifier
+ROOT = os.getcwd()
+from ...discriminator import classifier
 import torch
 from torch import nn, optim
 from torchvision import datasets, transforms
@@ -31,12 +31,10 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 
 
-train_root = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Training'
-val_root = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Test'
+train_root = ROOT + '/Data/Fruits/fruit_data/Training'
+val_root = ROOT + '/Data/Fruits/fruit_data/Test'
 
 # In[ ]:
-
-os.chdir('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE')
 
 train_loader_food = torch.utils.data.DataLoader(
     datasets.ImageFolder(train_root, transform=transforms.ToTensor()),
@@ -265,5 +263,6 @@ def test_classifier():
 
 
 if __name__ == "__main__":
+    os.chdir(ROOT + '/machine_learning/encoder_decoder/VAE')
     train_loop()
     test_classifier()

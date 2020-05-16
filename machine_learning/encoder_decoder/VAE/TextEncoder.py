@@ -5,12 +5,15 @@ import itertools
 
 import torch
 import os
+
+ROOT = os.getcwd()
+
 from torch import nn, optim
 from torchvision import datasets, transforms
 import pickle
 import numpy as np
-from ConvNetVAEFruits import VAE_CNN
-from machine_learning.embeddings.embed_fruits import  embed_bow
+from .ConvNetVAEFruits import VAE_CNN
+from machine_learning.embeddings.embed_fruits import embed_bow
 
 EMBED_SIZE = 255
 N_SAMPLES = 50
@@ -34,12 +37,12 @@ cuda = not no_cuda and torch.cuda.is_available()
 torch.manual_seed(seed)
 
 
+os.chdir(ROOT + '/machine_learning/encoder_decoder/VAE')
 device = torch.device("cuda" if cuda else "cpu")
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # ## 2. Data loaders
 
-os.chdir("/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE")
 
 
 
@@ -102,8 +105,8 @@ class TextEncoder(nn.Module):
 
 
 
-train_root = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Training'
-val_root = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Test'
+train_root = ROOT + '/Data/Fruits/fruit_data/Training'
+val_root = ROOT + '/Data/Fruits/fruit_data/Test'
 
 
 train_set = datasets.ImageFolder(train_root, transform=transforms.ToTensor())
@@ -117,15 +120,14 @@ val_loader_food = torch.utils.data.DataLoader(
 
 idx_to_class = {v: k for k, v in train_set.class_to_idx.items()}
 
-with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Embeddings/BoW/embeddings_short.pkl', 'rb') as f:
+with open(ROOT + '/Data/Fruits/fruit_data/Embeddings/BoW/embeddings_short.pkl', 'rb') as f:
     text_embeddings = pickle.load(f)
     EMBED_SIZE = len(text_embeddings['Kiwi'])
     print("Embedding size: {}".format(EMBED_SIZE))
 
 
-with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Embeddings/BoW/individual_sentence_embeddings.pkl', 'rb') as f:
+with open(ROOT + '/Data/Fruits/fruit_data/Embeddings/BoW/individual_sentence_embeddings.pkl', 'rb') as f:
     individual_sentence_embeddings = pickle.load(f)
-
 
 
 def load_model():
@@ -139,7 +141,6 @@ random_appended_vectors = []
 # CHOOSE some fixed random vectors, in order to ensure reuse of vectors
 for i in range(UNIQUE_RANDOM_VECS):
     random_appended_vectors.append(np.random.rand(1, RANDOM_SIZE))
-
 
 def generate_instances(labels, idx_to_class):
     ret = []
@@ -307,7 +308,7 @@ def train_loop(train_data, test_data, text_cnn):
         if loss < min_test_loss:
             min_test_loss = loss
             print('New min test loss {}'.format(min_test_loss))
-            torch.save(text_cnn.state_dict(), 'TextEnc/model_individual_sentences.pt')
+            torch.save(text_cnn.state_dict(), 'TextEnc/model.pt')
 
     plt.figure(figsize=(15, 10))
     plt.plot(range(len(train_losses)), train_losses)
@@ -419,16 +420,16 @@ def save_data(data, f, individual_sentences=False, k=1):
     return data_new
 
 def run_train():
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE/TextVAEDataPickles/train_short.pkl', 'rb') as f:
+    with open('TextVAEDataPickles/train_short.pkl', 'rb') as f:
         train_data = pickle.load(f)
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE/TextVAEDataPickles/test_short.pkl', 'rb') as f:
+    with open('TextVAEDataPickles/test_short.pkl', 'rb') as f:
         test_data = pickle.load(f)
     train_data, test_data, held_out_indices = hold_out_random_classes(train_data, test_data)
     print(held_out_indices)
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE/TextVAEDataPickles/train_individual_sentences.pkl', 'wb+') as f:
-        train_data = save_data(train_data, f, individual_sentences=True, k=3)
+    with open('TextVAEDataPickles/train_full_data.pkl', 'wb+') as f:
+        train_data = save_data(train_data, f, individual_sentences=False, k=3)
 
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE/TextVAEDataPickles/test_individual_sentences.pkl', 'wb+') as f:
+    with open('TextVAEDataPickles/test_full_data.pkl', 'wb+') as f:
         test_data = save_data(test_data, f, individual_sentences=False)
 
     text_cnn = load_model()
@@ -442,11 +443,10 @@ def run_make_data():
     model.to(DEVICE)
     model.eval()
     train_data, test_data = make_data(model)
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE/TextVAEDataPickles/train_short.pkl', 'wb+') as f:
+    with open('TextVAEDataPickles/train_short.pkl', 'wb+') as f:
         pickle.dump(train_data, f)
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE/TextVAEDataPickles/test_short.pkl', 'wb+') as f:
+    with open('TextVAEDataPickles/test_short.pkl', 'wb+') as f:
         pickle.dump(test_data, f)
 
 if __name__ == "__main__":
-    # run_make_data()
     run_train()

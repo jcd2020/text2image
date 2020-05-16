@@ -64,14 +64,14 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # ## 2. Data loaders
 
-os.chdir("/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/discriminator")
+os.chdir("machine_learning/discriminator")
 
 transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-train_root = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Training'
-val_root = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Test'
+train_root = '../../Data/Fruits/fruit_data/Training'
+val_root = '../../Data/Fruits/fruit_data/Test'
 
 
 train_set = datasets.ImageFolder(train_root, transform=transforms.ToTensor())
@@ -128,7 +128,7 @@ class Net(nn.Module):
         x = F.relu(self.fc2(x))
         x = F.softmax(self.fc3(x))
         return x
-PATH = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/discriminator/result/fruits_net.pth'
+PATH = 'result/fruits_net.pth'
 
 criterion = nn.CrossEntropyLoss()
 
@@ -203,7 +203,8 @@ def train_network():
 
 
 def evaluate_model():
-    PATH = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/discriminator/result/fruits_net_30_epochs.pth'
+    '''Evaluate accuracy of classifier on fruits 360'''
+    PATH = 'result/fruits_net_30_epochs.pth'
     classes = {v: k for k, v in train_set.class_to_idx.items()}
 
     net = Net()
@@ -273,7 +274,7 @@ def evaluate_model():
 
     confusion_matrix = sorted(rank_entries, key=lambda x: x[1], reverse=True)
 
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/discriminator/result/classifier_results.csv', 'w+') as f:
+    with open('result/classifier_results.csv', 'w+') as f:
         for entry in confusion_matrix:
             entry = (entry[0], str(entry[1]), entry[2])
             f.write(', '.join(entry) + '\n')

@@ -1,8 +1,5 @@
 import random
-
 import matplotlib.pyplot as plt
-from machine_learning.discriminator import classifier
-
 import torch
 import os
 from torch import nn, optim
@@ -13,9 +10,12 @@ from torchvision.utils import save_image
 import pickle
 import numpy as np
 import math
-from ConvNetVAEFruits import VAE_CNN, ZDIM
-from TextEncoder import TextEncoder, generate_instance, ENC_SIZE, EMBED_SIZE, RANDOM_SIZE, BATCH_SIZE, TEST_FRUITS, generate_text_instances
-N_SAMPLES = 50
+ROOT = os.getcwd()
+print(ROOT)
+from .ConvNetVAEFruits import VAE_CNN, ZDIM
+os.chdir(ROOT)
+from .TextEncoder import TextEncoder, generate_instance, ENC_SIZE, EMBED_SIZE, RANDOM_SIZE, BATCH_SIZE, TEST_FRUITS, generate_text_instances
+from machine_learning.discriminator import classifier
 N_SAMPLES = 50
 RAND_SIZE = 8
 DEVICE = torch.device("cuda")
@@ -117,7 +117,7 @@ class TextCNN(nn.Module):
         return self.decode(z), mu, logvar
 
 kwargs = {'num_workers': 1, 'pin_memory': True}
-train_root = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/Training'
+train_root = ROOT + '/Data/Fruits/fruit_data/Training'
 train_set = datasets.ImageFolder(train_root, transform=transforms.ToTensor())
 train_loader_food = torch.utils.data.DataLoader(
     train_set,
@@ -229,7 +229,7 @@ def update_params_model(text_cnn, VAE=True):
         model.to(DEVICE)
     else:
         model = TextEncoder()
-        model.load_state_dict(torch.load('TextEnc/model_individual_sentences.pt'))
+        model.load_state_dict(torch.load('TextEnc/model.pt'))
         model.to(DEVICE)
 
     pre_trained_state_dict = model.state_dict()
@@ -242,14 +242,6 @@ def update_params_model(text_cnn, VAE=True):
     text_state_dict.update(filtered_dict)
     text_cnn.load_state_dict(text_state_dict)
 
-    # if VAE:
-    #     print("Freezing updates for decoder layers")
-    #     idx = 0
-    #     for param in text_cnn.parameters():
-    #         if idx > 19:
-    #             param.requires_grad = False
-    #         idx += 1
-
     return text_cnn
 
 def load_model():
@@ -257,7 +249,7 @@ def load_model():
     text_cnn.to(DEVICE)
 
 
-    DISCRIMNATOR_PATH = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/discriminator/result/fruits_net_30_epochs.pth'
+    DISCRIMNATOR_PATH = ROOT + '/machine_learning/discriminator/result/fruits_net_30_epochs.pth'
 
     discriminator = classifier.Net()
     discriminator.load_state_dict(torch.load(DISCRIMNATOR_PATH))
@@ -356,10 +348,10 @@ def test(model, test_data, discrim_loss, epoch, losses):
 
 
 def train_loop(text_cnn, discriminator):
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE/TextVAEDataPickles/train_individual_sentences.pkl', 'rb') as f:
+    with open('TextVAEDataPickles/train_individual_sentences.pkl', 'rb') as f:
         train_data = pickle.load(f)
 
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE/TextVAEDataPickles/test_individual_sentences.pkl', 'rb') as f:
+    with open('TextVAEDataPickles/test_individual_sentences.pkl', 'rb') as f:
         test_data = pickle.load(f)
 
     epochs = 350
@@ -442,8 +434,8 @@ def display_images(img_list, loc, cols=3):
     plt.close(f)
 
 fruit_name_to_desc = {}
-for fruit in os.listdir('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/TextDescriptions'):
-    with open('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Data/Fruits/fruit_data/TextDescriptions/'
+for fruit in os.listdir(ROOT + '/Data/Fruits/fruit_data/TextDescriptions'):
+    with open(ROOT + '/Data/Fruits/fruit_data/TextDescriptions/'
               + fruit + '/description.txt', 'r') as f:
         fruit_name_to_desc[fruit] = ''.join(f.readlines())
 
@@ -474,7 +466,7 @@ def eval_text_decoding(model, discriminator):
         _, predicted = torch.max(classification, 1)
         predicted = rev_classes[predicted[0].item()]
         print('Classifier predicted {}\n\n'.format(predicted))
-    display_images(images, '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Results/IndividualSentences/train_fruits.png')
+    display_images(images, ROOT + '/Results/IndividualSentences/train_fruits.png')
     test_fruit_names = [x for x in rev_classes.keys() if x in TEST_FRUITS]
     test_fruit_names = list(map(lambda x: rev_classes[x], test_fruit_names))
 
@@ -496,7 +488,7 @@ def eval_text_decoding(model, discriminator):
         _, predicted = torch.max(classification, 1)
         predicted = rev_classes[predicted[0].item()]
         print('Classifier predicted {}\n\n'.format(predicted))
-    display_images(images, '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Results/IndividualSentences/test_fruits.png')
+    display_images(images, ROOT + '/Results/IndividualSentences/test_fruits.png')
 
 
 def run_train():
@@ -543,7 +535,7 @@ def evaluate(model):
     text_cnn.to(DEVICE)
     text_cnn.eval()
 
-    DISCRIMNATOR_PATH = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/discriminator/result/fruits_net_30_epochs.pth'
+    DISCRIMNATOR_PATH = ROOT + '/machine_learning/discriminator/result/fruits_net_30_epochs.pth'
 
     discriminator = classifier.Net()
     discriminator.load_state_dict(torch.load(DISCRIMNATOR_PATH))
@@ -558,7 +550,7 @@ def evaluate_novel_descriptions(descriptions, model):
     text_cnn.to(DEVICE)
     text_cnn.eval()
 
-    DISCRIMNATOR_PATH = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/discriminator/result/fruits_net_30_epochs.pth'
+    DISCRIMNATOR_PATH = ROOT + '/machine_learning/discriminator/result/fruits_net_30_epochs.pth'
 
     discriminator = classifier.Net()
     discriminator.load_state_dict(torch.load(DISCRIMNATOR_PATH))
@@ -580,7 +572,7 @@ def evaluate_novel_descriptions(descriptions, model):
         for idx in range(3):
             print('Prediction number {}: {}'.format(idx+1, rev_classes[top_k[idx].item()]))
         print('\n')
-    display_images(images, '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Results/IndividualSentences/novel_descriptions.png', cols=1)
+    display_images(images, ROOT + '/Results/WithRandomness/novel_descriptions.png', cols=1)
 
 def evaluate_repl(model):
     import warnings
@@ -590,7 +582,7 @@ def evaluate_repl(model):
     text_cnn.to(DEVICE)
     text_cnn.eval()
 
-    DISCRIMNATOR_PATH = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/discriminator/result/fruits_net_30_epochs.pth'
+    DISCRIMNATOR_PATH = ROOT + '/machine_learning/discriminator/result/fruits_net_30_epochs.pth'
 
     discriminator = classifier.Net()
     discriminator.load_state_dict(torch.load(DISCRIMNATOR_PATH))
@@ -618,18 +610,14 @@ def evaluate_repl(model):
                 axarr.axis('off')
                 axarr.imshow(img)
                 axarr.set_title(desc)
-                plt.savefig('/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Results/FuglyFruits/fugly_fruit_{}.png'.format(counter))
+                plt.savefig(ROOT + '/Results/FuglyFruits/fugly_fruit_{}.png'.format(counter))
                 plt.show()
                 counter += 1
 
-
-if __name__ == '__main__':
-    # run_train()
-    model = '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/machine_learning/encoder_decoder/VAE/TextVAEModels/model_test_loss_opt_individual_sents.pt'
-    # interpolate(model, ('red', 'purple'), '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Results/WithRandomness/interpolations_red_purple.png')
-    # interpolate(model, ('long', 'flat'), '/hdd/home/Documents/Research/DecodingDefinitionsToObjects/Results/WithRandomness/interpolations_long_flat.png')
-
-    # interpolate(model, ('long', 'round'))
+def evaluate_results():
+    model = 'TextVAEModels/model.pt'
+    interpolate(model, ('red', 'purple'), ROOT + '/Results/WithRandomness/interpolations_red_purple.png')
+    interpolate(model, ('long', 'flat'), ROOT + '/Results/WithRandomness/interpolations_long_flat.png')
     evaluate(model)
     evaluate_novel_descriptions(['red',
                                  'yellow long smooth',
@@ -639,4 +627,6 @@ if __name__ == '__main__':
                                  'oblong light',
                                  'purple'],
                                 model)
-    # evaluate_repl(model)
+
+if __name__ == '__main__':
+    run_train()

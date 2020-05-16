@@ -27,14 +27,12 @@ def get_tokens_and_bigrams(text):
 
     return unique_toks, bigrams
 
-with open('Data/Fruits/fruit_data/Embeddings/BoW/longer_words.txt', 'r') as f:
-    lsa_words = set(map(lambda x: x.strip(), f.readlines()))
-
-with open('Data/Fruits/fruit_data/Embeddings/BoW/longer_words.txt', 'r') as f:
+FILE_LOC = os.getcwd().split('DecodingDefinitionsToObjects')[0] + 'DecodingDefinitionsToObjects/'
+with open(FILE_LOC + 'Data/Fruits/fruit_data/Embeddings/BoW/longer_words.txt', 'r') as f:
     word_list = set(map(lambda x: x.strip(), f.readlines()))
 
 def bag_of_words():
-    with open('Data/Fruits/fruit_data/AllTextDescriptions/description.txt', 'r') as f:
+    with open(FILE_LOC + '/Data/Fruits/fruit_data/AllTextDescriptions/description.txt', 'r') as f:
         lines = f.readlines()
 
         all_toks, all_bigrams = get_tokens_and_bigrams('\n'.join(lines))
@@ -55,7 +53,7 @@ def bag_of_words():
             #     else:
             #         gram_to_idf[tok] = 1
         gram_idf_dup = {}
-        with open('Data/Fruits/fruit_data/Embeddings/BoW/all_words.txt', 'w') as f:
+        with open(FILE_LOC + '/Data/Fruits/fruit_data/Embeddings/BoW/all_words.txt', 'w') as f:
             for gram in gram_to_idf:
                 if gram_to_idf[gram] < 4:
                     if len(gram.split(' ')) == 2:
