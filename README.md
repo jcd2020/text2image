@@ -1,5 +1,8 @@
 Please read the pdf and view the slides to learn more about the project. Run the commands below (from the current directory) in the terminal to reproduce the results.
-Run
+
+The best results are in Resuls/WithRandomness
+
+Execute the following in terminal
 1. `python machine_learning/embeddings/embed_fruits.py` to make the embeddings.
 2. `python machine_learning/discriminator/classifier.py` to train the classifier
 3. `python -m machine_learning.encoder_decoder.VAE.ConvNetVAEFruits` to train the ConvNet
